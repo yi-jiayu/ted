@@ -2,3 +2,43 @@
 
 # ted
 Go bindings for the Telegram Bot API
+
+## Usage
+
+Ted's API is inspired by the Go standard library's `net/http` package.
+
+Create a `ted.Bot` with your bot token and HTTP client, then build your request and send it:
+
+```go
+bot := ted.Bot{
+    Token:      "BOT_TOKEN",
+    HTTPClient: http.DefaultClient,
+}
+req := ted.SendMessageRequest{
+    ChatID:    123,
+    Text:      "*Hello, World*",
+    ParseMode: "Markdown",
+}
+res, err := bot.Do(req)
+if err != nil {
+    if response, ok := err.(ted.Response); ok {
+        // handle Telegram error
+    }
+    // handle HTTP error
+}
+```
+
+The bot also handles making multiple requests concurrently:
+
+```go
+answerCallbackQueryRequest := ted.AnswerCallbackQueryRequest{
+    CallbackQueryID: "abc",
+}
+sendMessageRequest := ted.SendMessageRequest{
+    ChatID:    123,
+    Text:      "*Hello, World*",
+    ParseMode: "Markdown",
+}
+// err will be nil if all requests were successful
+responses, err := bot.DoMulti(answerCallbackQueryRequest, sendMessageRequest)
+```
