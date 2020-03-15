@@ -99,7 +99,7 @@ type SendMessageRequest struct {
 	ChatID      int         `json:"chat_id"`
 	Text        string      `json:"text"`
 	ParseMode   string      `json:"parse_mode"`
-	ReplyMarkup ReplyMarkup `json:"reply_markup"`
+	ReplyMarkup ReplyMarkup `json:"reply_markup,omitempty"`
 }
 
 func (r SendMessageRequest) doWith(bot Bot) (Response, error) {
