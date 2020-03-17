@@ -32,7 +32,9 @@ type InlineKeyboardMarkup struct {
 func (i InlineKeyboardMarkup) replyMarkup() {}
 
 func (i InlineKeyboardMarkup) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(i)
+	data, err := json.Marshal(struct {
+		InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
+	}(i))
 	if err != nil {
 		return nil, err
 	}
