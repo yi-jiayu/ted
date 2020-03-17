@@ -5,8 +5,9 @@ import (
 )
 
 type Update struct {
-	ID      int      `json:"update_id"`
-	Message *Message `json:"message"`
+	ID            int            `json:"update_id"`
+	Message       *Message       `json:"message"`
+	CallbackQuery *CallbackQuery `json:"callback_query"`
 }
 
 type Message struct {
@@ -51,4 +52,12 @@ type MessageEntity struct {
 	Type   string `json:"type"`
 	Offset int    `json:"offset"`
 	Length int    `json:"length"`
+}
+
+type CallbackQuery struct {
+	ID              string   `json:"id"`
+	From            User     `json:"from"`
+	Message         *Message `json:"message"`
+	InlineMessageID string   `json:"inline_message_id"`
+	Data            string   `json:"data"`
 }
