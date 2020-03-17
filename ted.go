@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 )
 
@@ -60,6 +61,7 @@ func (c Bot) DoMulti(requests ...Request) ([]Response, error) {
 
 type Response struct {
 	OK          bool   `json:"ok"`
+	ErrorCode   int    `json:"error_code"`
 	Description string `json:"description"`
 }
 
@@ -93,4 +95,12 @@ func (c Bot) doJSON(method string, request interface{}) (Response, error) {
 		return Response{}, response
 	}
 	return response, nil
+}
+
+func IsMessageNotModified(err error) bool {
+	res, ok := err.(Response)
+	if !ok {
+		return false
+	}
+	return strings.Contains(res.Description, "message is not modified")
 }
