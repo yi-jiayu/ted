@@ -5,9 +5,28 @@ import (
 )
 
 type SendMessageRequest struct {
-	ChatID      int         `json:"chat_id"`
-	Text        string      `json:"text"`
-	ParseMode   string      `json:"parse_mode"`
+	// ChatID is a string when it refers to the username of a channel and an integer otherwise.
+	// Required if InlineMessageID is not specified.
+	ChatID interface{} `json:"chat_id"`
+
+	// Text of the message to be sent. It should be limited to 1-4096 characters after entities parsing.
+	Text string `json:"text"`
+
+	// ParseMode can be specified to show bold, italic, fixed-width text or inline URLs in messages.
+	// Possible values are "Markdown", "MarkdownV2" and "HTML". Refer to
+	// https://core.telegram.org/bots/api#formatting-options for more information.
+	ParseMode string `json:"parse_mode,omitempty"`
+
+	// DisableWebPagePreview will disable link previews for links in this message.
+	DisableWebPagePreview bool `json:"disable_web_page_preview,omitempty"`
+
+	// DisableNotification will send the message silently if set. Users will receive a notification with no sound.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+
+	// ReplyToMessageID is the ID of the message to reply to.
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+
+	// ReplyMarkup can be an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 	ReplyMarkup ReplyMarkup `json:"reply_markup,omitempty"`
 }
 
