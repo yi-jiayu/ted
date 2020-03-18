@@ -11,10 +11,22 @@ type Update struct {
 }
 
 type Message struct {
-	ID       int             `json:"message_id"`
-	From     *User           `json:"from"`
-	Chat     Chat            `json:"chat"`
-	Text     string          `json:"text"`
+	// Unique message identifier inside this chat
+	ID int `json:"message_id"`
+
+	// Sender, empty for messages sent to channels
+	From *User `json:"from"`
+
+	// Conversation the message belongs to
+	Chat Chat `json:"chat"`
+
+	// For replies, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
+	ReplyToMessage *Message `json:"reply_to_message"`
+
+	// For text messages, the actual UTF-8 text of the message, 0-4096 characters
+	Text string `json:"text"`
+
+	// For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
 	Entities []MessageEntity `json:"entities"`
 }
 
