@@ -38,6 +38,101 @@ type ReplyMarkup interface {
 	replyMarkup()
 }
 
+// This object represents one button of the reply keyboard. For simple text
+// buttons String can be used instead of this object to specify text of the
+// button. Optional fields request_contact, request_location, and request_poll
+// are mutually exclusive.
+type KeyboardButton struct {
+	// 	Text of the button. If none of the optional fields are used, it
+	// 	will be sent as a message when the button is pressed
+	Text string `json:"text"`
+
+	// If True, the user's phone number will be sent as a contact when the
+	// button is pressed. Available in private chats only
+	RequestContact bool `json:"request_contact,omitempty"`
+
+	// If True, the user's current location will be sent when the button is
+	// pressed. Available in private chats only
+	RequestLocation bool `json:"request_location,omitempty"`
+}
+
+type ReplyKeyboardMarkup struct {
+	// Array of button rows, each represented by an Array of KeyboardButton or string.
+	Keyboard [][]interface{}
+
+	// Requests clients to resize the keyboard vertically for optimal fit
+	// (e.g., make the keyboard smaller if there are just two rows of
+	// buttons). Defaults to false, in which case the custom keyboard is
+	// always of the same height as the app's standard keyboard.
+	ResizeKeyboard bool
+
+	// Requests clients to hide the keyboard as soon as it's been used. The
+	// keyboard will still be available, but clients will automatically
+	// display the usual letter-keyboard in the chat – the user can press a
+	// special button in the input field to see the custom keyboard again.
+	// Defaults to false.
+	OneTimeKeyboard bool
+
+	// Use this parameter if you want to show the keyboard to specific
+	// users only. Targets: 1) users that are @mentioned in the text of the
+	// Message object; 2) if the bot's message is a reply (has
+	// reply_to_message_id), sender of the original message.
+	//
+	// Example: A user requests to change the bot‘s language, bot replies
+	// to the request with a keyboard to select the new language. Other
+	// users in the group don’t see the keyboard.
+	Selective bool
+}
+
+func (r ReplyKeyboardMarkup) replyMarkup() {}
+
+func (r ReplyKeyboardMarkup) MarshalJSON() ([]byte, error) {
+	data, err := json.Marshal(struct {
+		Keyboard        [][]interface{} `json:"keyboard"`
+		ResizeKeyboard  bool            `json:"resize_keyboard,omitempty"`
+		OneTimeKeyboard bool            `json:"one_time_keyboard,omitempty"`
+		Selective       bool            `json:"selective,omitempty"`
+	}(r))
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(string(data))
+}
+
+// Upon receiving a message with this object, Telegram clients will remove the
+// current custom keyboard and display the default letter-keyboard. By default,
+// custom keyboards are displayed until a new keyboard is sent by a bot. An
+// exception is made for one-time keyboards that are hidden immediately after
+// the user presses a button (see ReplyKeyboardMarkup).
+type ReplyKeyboardRemove struct {
+	// Use this parameter if you want to remove the keyboard for specific
+	// users only. Targets: 1) users that are @mentioned in the text of the
+	// Message object; 2) if the bot's message is a reply (has
+	// reply_to_message_id), sender of the original message.
+	//
+	// Example: A user votes in a poll, bot returns confirmation message in
+	// reply to the vote and removes the keyboard for that user, while
+	// still showing the keyboard with poll options to users who haven't
+	// voted yet.
+	Selective bool
+}
+
+func (r ReplyKeyboardRemove) replyMarkup() {}
+
+func (r ReplyKeyboardRemove) MarshalJSON() ([]byte, error) {
+	data, err := json.Marshal(struct {
+		RemoveKeyboard bool `json:"remove_keyboard"`
+		Selective      bool `json:"selective,omitempty"`
+	}{
+		RemoveKeyboard: true,
+		Selective:      r.Selective,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(string(data))
+}
+
 // Upon receiving a message with this object, Telegram clients will display a
 // reply interface to the user (act as if the user has selected the bot‘s
 // message and tapped ’Reply'). This can be extremely useful if you want to
@@ -74,7 +169,7 @@ type InlineKeyboardButton struct {
 }
 
 type InlineKeyboardMarkup struct {
-	InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
+	InlineKeyboard [][]InlineKeyboardButton
 }
 
 func (i InlineKeyboardMarkup) replyMarkup() {}
