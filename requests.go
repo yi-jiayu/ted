@@ -436,3 +436,26 @@ func (r AnswerInlineQueryRequest) MarshalJSON() ([]byte, error) {
 		SwitchPMParameter string             `json:"switch_pm_parameter,omitempty"`
 	}(r))
 }
+
+// Use this method to edit only the reply markup of messages. On success, if
+// edited message is sent by the bot, the edited Message is returned, otherwise
+// True is returned.
+type EditMessageReplyMarkupRequest struct {
+	// Required if inline_message_id is not specified. Unique identifier
+	// for the target chat or username of the target channel (in the format
+	// @channelusername)
+	ChatID interface{} `json:"chat_id,omitempty"`
+
+	// Required if inline_message_id is not specified. Identifier of the message to edit
+	MessageID int `json:"message_id,omitempty"`
+
+	// Required if chat_id and message_id are not specified. Identifier of the inline message
+	InlineMessageID string `json:"inline_message_id,omitempty"`
+
+	// A JSON-serialized object for an inline keyboard.
+	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+func (e EditMessageReplyMarkupRequest) doWith(bot Bot) (Response, error) {
+	return bot.doJSON("editMessageReplyMarkup", e)
+}
