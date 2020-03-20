@@ -69,3 +69,31 @@ func TestReplyKeyboardRemove_MarshalJSON(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `"{\"remove_keyboard\":true,\"selective\":true}"`, string(JSON))
 }
+
+func TestInlineQueryResultArticle_MarshalJSON(t *testing.T) {
+	result := InlineQueryResultArticle{
+		ID:    "123",
+		Title: "Title",
+		InputMessageContent: InputTextMessageContent{
+			Text: "Message text",
+		},
+		Description: "Description",
+		ThumbURL:    "Thumbnail URL",
+		ThumbWidth:  200,
+		ThumbHeight: 200,
+	}
+	JSON, err := json.Marshal(result)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{
+  "type": "article",
+  "id": "123",
+  "title": "Title",
+  "input_message_content": {
+    "message_text": "Message text"
+  },
+  "description": "Description",
+  "thumb_url": "Thumbnail URL",
+  "thumb_width": 200,
+  "thumb_height": 200
+}`, string(JSON))
+}

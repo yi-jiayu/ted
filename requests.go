@@ -225,3 +225,214 @@ type EditMessageTextRequest struct {
 func (e EditMessageTextRequest) doWith(bot Bot) (Response, error) {
 	return bot.doJSON("editMessageText", e)
 }
+
+// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 4 types:
+//
+//  InputTextMessageContent
+//  InputLocationMessageContent
+//  InputVenueMessageContent
+//  InputContactMessageContent
+type InputMessageContent interface {
+	inputMessageContent()
+}
+
+// Represents the content of a text message to be sent as the result of an inline query.
+type InputTextMessageContent struct {
+	// Text of the message to be sent, 1-4096 characters
+	Text string `json:"message_text"`
+
+	// Optional. Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+	ParseMode string `json:"parse_mode,omitempty"`
+
+	// Optional. Disables link previews for links in the sent message
+	DisableWebPagePreview bool `json:"disable_web_page_preview,omitempty"`
+}
+
+func (i InputTextMessageContent) inputMessageContent() {}
+
+// Represents the content of a location message to be sent as the result of an inline query.
+type InputLocationMessageContent struct {
+	// Latitude of the location in degrees
+	Latitude float32 `json:"latitude"`
+
+	// Longitude of the location in degrees
+	Longitude float32 `json:"longitude"`
+
+	// Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+	LivePeriod int `json:"live_period,omitempty"`
+}
+
+func (i InputLocationMessageContent) inputMessageContent() {}
+
+// Represents the content of a venue message to be sent as the result of an inline query.
+type InputVenueMessageContent struct {
+	// Latitude of the location in degrees
+	Latitude float32 `json:"latitude"`
+
+	// Longitude of the location in degrees
+	Longitude float32 `json:"longitude"`
+
+	// Name of the venue
+	Title string `json:"title"`
+
+	// Address of the venue
+	Address string `json:"address"`
+}
+
+func (i InputVenueMessageContent) inputMessageContent() {}
+
+// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
+//
+//  InlineQueryResultCachedAudio
+//  InlineQueryResultCachedDocument
+//  InlineQueryResultCachedGif
+//  InlineQueryResultCachedMpeg4Gif
+//  InlineQueryResultCachedPhoto
+//  InlineQueryResultCachedSticker
+//  InlineQueryResultCachedVideo
+//  InlineQueryResultCachedVoice
+//  InlineQueryResultArticle
+//  InlineQueryResultAudio
+//  InlineQueryResultContact
+//  InlineQueryResultGame
+//  InlineQueryResultDocument
+//  InlineQueryResultGif
+//  InlineQueryResultLocation
+//  InlineQueryResultMpeg4Gif
+//  InlineQueryResultPhoto
+//  InlineQueryResultVenue
+//  InlineQueryResultVideo
+//  InlineQueryResultVoice
+type InlineQueryResult interface {
+	inlineQueryResult()
+}
+
+// InlineQueryResultArticle represents a link to an article or web page.
+type InlineQueryResultArticle struct {
+	// Unique identifier for this result, 1-64 Bytes
+	ID string
+
+	// Title of the result
+	Title string
+
+	// Content of the message to be sent
+	InputMessageContent InputMessageContent
+
+	// Optional. Inline keyboard attached to the message
+	ReplyMarkup *InlineKeyboardMarkup
+
+	// Optional. URL of the result
+	URL string
+
+	// Optional. Pass True, if you don't want the URL to be shown in the message
+	HideURL bool
+
+	// Optional. Short description of the result
+	Description string
+
+	// Optional. Url of the thumbnail for the result
+	ThumbURL string
+
+	// Optional. Thumbnail width
+	ThumbWidth int
+
+	// Optional. Thumbnail height
+	ThumbHeight int
+}
+
+func (i InlineQueryResultArticle) inlineQueryResult() {}
+
+func (i InlineQueryResultArticle) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Type                string                `json:"type"`
+		ID                  string                `json:"id"`
+		Title               string                `json:"title"`
+		InputMessageContent InputMessageContent   `json:"input_message_content"`
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+		URL                 string                `json:"url,omitempty"`
+		HideURL             bool                  `json:"hide_url,omitempty"`
+		Description         string                `json:"description,omitempty"`
+		ThumbURL            string                `json:"thumb_url,omitempty"`
+		ThumbWidth          int                   `json:"thumb_width,omitempty"`
+		ThumbHeight         int                   `json:"thumb_height,omitempty"`
+	}{
+		Type:                "article",
+		ID:                  i.ID,
+		Title:               i.Title,
+		InputMessageContent: i.InputMessageContent,
+		ReplyMarkup:         i.ReplyMarkup,
+		URL:                 i.URL,
+		HideURL:             i.HideURL,
+		Description:         i.Description,
+		ThumbURL:            i.ThumbURL,
+		ThumbWidth:          i.ThumbWidth,
+		ThumbHeight:         i.ThumbHeight,
+	})
+}
+
+// Use this method to send answers to an inline query. On success, True is
+// returned. No more than 50 results per query are allowed.
+type AnswerInlineQueryRequest struct {
+	// Unique identifier for the answered query.
+	InlineQueryID string
+
+	// Results is an array of results for the inline query.
+	Results InlineQueryResults
+
+	// The maximum amount of time in seconds that the result of the inline
+	// query may be cached on the server. Defaults to 300.
+	CacheTime int
+
+	// Pass True, if results may be cached on the server side only for the
+	// user that sent the query. By default, results may be returned to any
+	// user who sends the same query
+	IsPersonal bool
+
+	// Pass the offset that a client should send in the next query with the
+	// same text to receive more results. Pass an empty string if there are
+	// no more results or if you don‘t support pagination. Offset length
+	// can’t exceed 64 bytes.
+	NextOffset string
+
+	// If passed, clients will display a button with specified text that
+	// switches the user to a private chat with the bot and sends the bot a
+	// start message with the parameter switch_pm_parameter
+	SwitchPMText string
+
+	// Deep-linking parameter for the /start message sent to the bot when
+	// user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9,
+	// _ and - are allowed.
+	//
+	// Example: An inline bot that sends YouTube videos can ask the user to
+	// connect the bot to their YouTube account to adapt search results
+	// accordingly. To do this, it displays a ‘Connect your YouTube
+	// account’ button above the results, or even before showing any. The
+	// user presses the button, switches to a private chat with the bot
+	// and, in doing so, passes a start parameter that instructs the bot to
+	// return an oauth link. Once done, the bot can offer a switch_inline
+	// button so that the user can easily return to the chat where they
+	// wanted to use the bot's inline capabilities.
+	SwitchPMParameter string
+}
+
+type InlineQueryResults []InlineQueryResult
+
+func (r InlineQueryResults) MarshalJSON() ([]byte, error) {
+	JSON, err := json.Marshal([]InlineQueryResult(r))
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(string(JSON))
+}
+
+func (r AnswerInlineQueryRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		InlineQueryID     string             `json:"inline_query_id"`
+		Results           InlineQueryResults `json:"results"`
+		CacheTime         int                `json:"cache_time,omitempty"`
+		IsPersonal        bool               `json:"is_personal,omitempty"`
+		NextOffset        string             `json:"next_offset,omitempty"`
+		SwitchPMText      string             `json:"switch_pm_text,omitempty"`
+		SwitchPMParameter string             `json:"switch_pm_parameter,omitempty"`
+	}(r))
+}
