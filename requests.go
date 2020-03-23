@@ -85,20 +85,20 @@ type KeyboardButton struct {
 
 type ReplyKeyboardMarkup struct {
 	// Array of button rows, each represented by an Array of KeyboardButton or string.
-	Keyboard [][]interface{}
+	Keyboard [][]interface{} `json:"keyboard"`
 
 	// Requests clients to resize the keyboard vertically for optimal fit
 	// (e.g., make the keyboard smaller if there are just two rows of
 	// buttons). Defaults to false, in which case the custom keyboard is
 	// always of the same height as the app's standard keyboard.
-	ResizeKeyboard bool
+	ResizeKeyboard bool `json:"resize_keyboard,omitempty"`
 
 	// Requests clients to hide the keyboard as soon as it's been used. The
 	// keyboard will still be available, but clients will automatically
 	// display the usual letter-keyboard in the chat – the user can press a
 	// special button in the input field to see the custom keyboard again.
 	// Defaults to false.
-	OneTimeKeyboard bool
+	OneTimeKeyboard bool `json:"one_time_keyboard,omitempty"`
 
 	// Use this parameter if you want to show the keyboard to specific
 	// users only. Targets: 1) users that are @mentioned in the text of the
@@ -108,7 +108,7 @@ type ReplyKeyboardMarkup struct {
 	// Example: A user requests to change the bot‘s language, bot replies
 	// to the request with a keyboard to select the new language. Other
 	// users in the group don’t see the keyboard.
-	Selective bool
+	Selective bool `json:"selective,omitempty"`
 }
 
 func (r ReplyKeyboardMarkup) replyMarkup() {}
