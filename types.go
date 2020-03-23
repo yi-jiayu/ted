@@ -8,6 +8,7 @@ type Update struct {
 	ID            int            `json:"update_id"`
 	Message       *Message       `json:"message"`
 	CallbackQuery *CallbackQuery `json:"callback_query"`
+	InlineQuery   *InlineQuery   `json:"inline_query"`
 }
 
 type Message struct {
