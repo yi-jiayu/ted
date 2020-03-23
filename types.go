@@ -5,10 +5,11 @@ import (
 )
 
 type Update struct {
-	ID            int            `json:"update_id"`
-	Message       *Message       `json:"message"`
-	CallbackQuery *CallbackQuery `json:"callback_query"`
-	InlineQuery   *InlineQuery   `json:"inline_query"`
+	ID                 int                 `json:"update_id"`
+	Message            *Message            `json:"message"`
+	CallbackQuery      *CallbackQuery      `json:"callback_query"`
+	InlineQuery        *InlineQuery        `json:"inline_query"`
+	ChosenInlineResult *ChosenInlineResult `json:"chosen_inline_result"`
 }
 
 type Message struct {
