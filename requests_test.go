@@ -176,3 +176,21 @@ func TestEditMessageTextRequest_MarshalJSON(t *testing.T) {
 	assert.NoError(t, err)
 	assert.JSONEq(t, expected, string(actual))
 }
+
+func TestInlineQueryResultLocation_MarshalJSON(t *testing.T) {
+	result := InlineQueryResultLocation{
+		ID:        "123",
+		Latitude:  1.23,
+		Longitude: 4.56,
+		Title:     "Title",
+	}
+	JSON, err := json.Marshal(result)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{
+  "type": "location",
+  "id": "123",
+  "latitude": 1.23,
+  "longitude": 4.56,
+  "title": "Title"
+}`, string(JSON))
+}

@@ -415,6 +415,68 @@ func (i InlineQueryResultArticle) MarshalJSON() ([]byte, error) {
 	})
 }
 
+type InlineQueryResultLocation struct {
+	// Unique identifier for this result, 1-64 Bytes
+	ID string
+
+	// Location latitude in degrees
+	Latitude float32
+
+	// Location longitude in degrees
+	Longitude float32
+
+	// Location title
+	Title string
+
+	// Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+	LivePeriod int
+
+	// Optional. Inline keyboard attached to the message
+	ReplyMarkup *InlineKeyboardMarkup
+
+	// Optional. Content of the message to be sent instead of the location
+	InputMessageContent InputMessageContent
+
+	// Optional. Url of the thumbnail for the result
+	ThumbURL string
+
+	// Optional. Thumbnail width
+	ThumbWidth int
+
+	// Optional. Thumbnail height
+	ThumbHeight int
+}
+
+func (i InlineQueryResultLocation) inlineQueryResult() {}
+
+func (i InlineQueryResultLocation) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Type                string                `json:"type"`
+		ID                  string                `json:"id"`
+		Latitude            float32               `json:"latitude"`
+		Longitude           float32               `json:"longitude"`
+		Title               string                `json:"title"`
+		LivePeriod          int                   `json:"live_period,omitempty"`
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+		InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"`
+		ThumbURL            string                `json:"thumb_url,omitempty"`
+		ThumbWidth          int                   `json:"thumb_width,omitempty"`
+		ThumbHeight         int                   `json:"thumb_height,omitempty"`
+	}{
+		Type:                "location",
+		ID:                  i.ID,
+		Latitude:            i.Latitude,
+		Longitude:           i.Longitude,
+		Title:               i.Title,
+		LivePeriod:          i.LivePeriod,
+		ReplyMarkup:         i.ReplyMarkup,
+		InputMessageContent: i.InputMessageContent,
+		ThumbURL:            i.ThumbURL,
+		ThumbWidth:          i.ThumbWidth,
+		ThumbHeight:         i.ThumbHeight,
+	})
+}
+
 // Use this method to send answers to an inline query. On success, True is
 // returned. No more than 50 results per query are allowed.
 type AnswerInlineQueryRequest struct {
