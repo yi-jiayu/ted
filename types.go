@@ -94,7 +94,7 @@ type InlineQuery struct {
 // Note: It is necessary to enable inline feedback via @Botfather in order to receive these objects in updates.
 type ChosenInlineResult struct {
 	// The unique identifier for the result that was chosen
-	ID string `json:"id"`
+	ID string `json:"result_id"`
 
 	// The user that chose the result
 	From User `json:"from"`
