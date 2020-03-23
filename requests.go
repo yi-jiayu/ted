@@ -7,27 +7,54 @@ import (
 type SendMessageRequest struct {
 	// ChatID is a string when it refers to the username of a channel and an integer otherwise.
 	// Required if InlineMessageID is not specified.
-	ChatID interface{} `json:"chat_id"`
+	ChatID interface{}
 
 	// Text of the message to be sent. It should be limited to 1-4096 characters after entities parsing.
-	Text string `json:"text"`
+	Text string
 
 	// ParseMode can be specified to show bold, italic, fixed-width text or inline URLs in messages.
 	// Possible values are "Markdown", "MarkdownV2" and "HTML". Refer to
 	// https://core.telegram.org/bots/api#formatting-options for more information.
-	ParseMode string `json:"parse_mode,omitempty"`
+	ParseMode string
 
 	// DisableWebPagePreview will disable link previews for links in this message.
-	DisableWebPagePreview bool `json:"disable_web_page_preview,omitempty"`
+	DisableWebPagePreview bool
 
 	// DisableNotification will send the message silently if set. Users will receive a notification with no sound.
-	DisableNotification bool `json:"disable_notification,omitempty"`
+	DisableNotification bool
 
 	// ReplyToMessageID is the ID of the message to reply to.
-	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	ReplyToMessageID int
 
 	// ReplyMarkup can be an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 	ReplyMarkup ReplyMarkup `json:"reply_markup,omitempty"`
+}
+
+func (r SendMessageRequest) MarshalJSON() ([]byte, error) {
+	req := struct {
+		ChatID                interface{} `json:"chat_id"`
+		Text                  string      `json:"text"`
+		ParseMode             string      `json:"parse_mode,omitempty"`
+		DisableWebPagePreview bool        `json:"disable_web_page_preview,omitempty"`
+		DisableNotification   bool        `json:"disable_notification,omitempty"`
+		ReplyToMessageID      int         `json:"reply_to_message_id,omitempty"`
+		ReplyMarkup           string      `json:"reply_markup,omitempty"`
+	}{
+		ChatID:                r.ChatID,
+		Text:                  r.Text,
+		ParseMode:             r.ParseMode,
+		DisableWebPagePreview: r.DisableWebPagePreview,
+		DisableNotification:   r.DisableNotification,
+		ReplyToMessageID:      r.ReplyToMessageID,
+	}
+	if r.ReplyMarkup != nil {
+		markup, err := json.Marshal(r.ReplyMarkup)
+		if err != nil {
+			return nil, err
+		}
+		req.ReplyMarkup = string(markup)
+	}
+	return json.Marshal(req)
 }
 
 func (r SendMessageRequest) doWith(bot Bot) (Response, error) {
@@ -86,19 +113,6 @@ type ReplyKeyboardMarkup struct {
 
 func (r ReplyKeyboardMarkup) replyMarkup() {}
 
-func (r ReplyKeyboardMarkup) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(struct {
-		Keyboard        [][]interface{} `json:"keyboard"`
-		ResizeKeyboard  bool            `json:"resize_keyboard,omitempty"`
-		OneTimeKeyboard bool            `json:"one_time_keyboard,omitempty"`
-		Selective       bool            `json:"selective,omitempty"`
-	}(r))
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(string(data))
-}
-
 // Upon receiving a message with this object, Telegram clients will remove the
 // current custom keyboard and display the default letter-keyboard. By default,
 // custom keyboards are displayed until a new keyboard is sent by a bot. An
@@ -120,17 +134,13 @@ type ReplyKeyboardRemove struct {
 func (r ReplyKeyboardRemove) replyMarkup() {}
 
 func (r ReplyKeyboardRemove) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(struct {
+	return json.Marshal(struct {
 		RemoveKeyboard bool `json:"remove_keyboard"`
 		Selective      bool `json:"selective,omitempty"`
 	}{
 		RemoveKeyboard: true,
 		Selective:      r.Selective,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(string(data))
 }
 
 // Upon receiving a message with this object, Telegram clients will display a
@@ -149,17 +159,13 @@ type ForceReply struct {
 func (f ForceReply) replyMarkup() {}
 
 func (f ForceReply) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(struct {
+	return json.Marshal(struct {
 		ForceReply bool `json:"force_reply"`
 		Selective  bool `json:"selective,omitempty"`
 	}{
 		ForceReply: true,
 		Selective:  f.Selective,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(string(data))
 }
 
 type InlineKeyboardButton struct {
@@ -169,20 +175,10 @@ type InlineKeyboardButton struct {
 }
 
 type InlineKeyboardMarkup struct {
-	InlineKeyboard [][]InlineKeyboardButton
+	InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
 }
 
 func (i InlineKeyboardMarkup) replyMarkup() {}
-
-func (i InlineKeyboardMarkup) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(struct {
-		InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
-	}(i))
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(string(data))
-}
 
 // Use this method to send answers to callback queries sent from inline
 // keyboards. The answer will be displayed to the user as a notification at the
@@ -242,6 +238,33 @@ type EditMessageTextRequest struct {
 
 	// ReplyMarkup can be provided to display an inline keyboard with the updated message.
 	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+func (e EditMessageTextRequest) MarshalJSON() ([]byte, error) {
+	req := struct {
+		ChatID                interface{} `json:"chat_id,omitempty"`
+		MessageID             int         `json:"message_id,omitempty"`
+		InlineMessageID       string      `json:"inline_message_id,omitempty"`
+		Text                  string      `json:"text"`
+		ParseMode             string      `json:"parse_mode,omitempty"`
+		DisableWebPagePreview bool        `json:"disable_web_page_preview,omitempty"`
+		ReplyMarkup           string      `json:"reply_markup,omitempty"`
+	}{
+		ChatID:                e.ChatID,
+		MessageID:             e.MessageID,
+		InlineMessageID:       e.InlineMessageID,
+		Text:                  e.Text,
+		ParseMode:             e.ParseMode,
+		DisableWebPagePreview: e.DisableWebPagePreview,
+	}
+	if e.ReplyMarkup != nil {
+		markup, err := json.Marshal(e.ReplyMarkup)
+		if err != nil {
+			return nil, err
+		}
+		req.ReplyMarkup = string(markup)
+	}
+	return json.Marshal(req)
 }
 
 func (e EditMessageTextRequest) doWith(bot Bot) (Response, error) {
@@ -399,7 +422,7 @@ type AnswerInlineQueryRequest struct {
 	InlineQueryID string
 
 	// Results is an array of results for the inline query.
-	Results InlineQueryResults
+	Results []InlineQueryResult
 
 	// The maximum amount of time in seconds that the result of the inline
 	// query may be cached on the server. Defaults to 300.
@@ -437,26 +460,35 @@ type AnswerInlineQueryRequest struct {
 	SwitchPMParameter string
 }
 
+func (r AnswerInlineQueryRequest) doWith(bot Bot) (Response, error) {
+	return bot.doJSON("answerInlineQuery", r)
+}
+
 type InlineQueryResults []InlineQueryResult
 
-func (r InlineQueryResults) MarshalJSON() ([]byte, error) {
-	JSON, err := json.Marshal([]InlineQueryResult(r))
+func (r AnswerInlineQueryRequest) MarshalJSON() ([]byte, error) {
+	req := struct {
+		InlineQueryID     string `json:"inline_query_id"`
+		Results           string `json:"results"`
+		CacheTime         int    `json:"cache_time,omitempty"`
+		IsPersonal        bool   `json:"is_personal,omitempty"`
+		NextOffset        string `json:"next_offset,omitempty"`
+		SwitchPMText      string `json:"switch_pm_text,omitempty"`
+		SwitchPMParameter string `json:"switch_pm_parameter,omitempty"`
+	}{
+		InlineQueryID:     r.InlineQueryID,
+		CacheTime:         r.CacheTime,
+		IsPersonal:        r.IsPersonal,
+		NextOffset:        r.NextOffset,
+		SwitchPMText:      r.SwitchPMText,
+		SwitchPMParameter: r.SwitchPMParameter,
+	}
+	data, err := json.Marshal(r.Results)
 	if err != nil {
 		return nil, err
 	}
-	return json.Marshal(string(JSON))
-}
-
-func (r AnswerInlineQueryRequest) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		InlineQueryID     string             `json:"inline_query_id"`
-		Results           InlineQueryResults `json:"results"`
-		CacheTime         int                `json:"cache_time,omitempty"`
-		IsPersonal        bool               `json:"is_personal,omitempty"`
-		NextOffset        string             `json:"next_offset,omitempty"`
-		SwitchPMText      string             `json:"switch_pm_text,omitempty"`
-		SwitchPMParameter string             `json:"switch_pm_parameter,omitempty"`
-	}(r))
+	req.Results = string(data)
+	return json.Marshal(req)
 }
 
 // Use this method to edit only the reply markup of messages. On success, if
@@ -466,16 +498,37 @@ type EditMessageReplyMarkupRequest struct {
 	// Required if inline_message_id is not specified. Unique identifier
 	// for the target chat or username of the target channel (in the format
 	// @channelusername)
-	ChatID interface{} `json:"chat_id,omitempty"`
+	ChatID interface{}
 
 	// Required if inline_message_id is not specified. Identifier of the message to edit
-	MessageID int `json:"message_id,omitempty"`
+	MessageID int
 
 	// Required if chat_id and message_id are not specified. Identifier of the inline message
-	InlineMessageID string `json:"inline_message_id,omitempty"`
+	InlineMessageID string
 
 	// A JSON-serialized object for an inline keyboard.
-	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	ReplyMarkup *InlineKeyboardMarkup
+}
+
+func (e EditMessageReplyMarkupRequest) MarshalJSON() ([]byte, error) {
+	req := struct {
+		ChatID          interface{} `json:"chat_id,omitempty"`
+		MessageID       int         `json:"message_id,omitempty"`
+		InlineMessageID string      `json:"inline_message_id,omitempty"`
+		ReplyMarkup     string      `json:"reply_markup,omitempty"`
+	}{
+		ChatID:          e.ChatID,
+		MessageID:       e.MessageID,
+		InlineMessageID: e.InlineMessageID,
+	}
+	if e.ReplyMarkup != nil {
+		markup, err := json.Marshal(e.ReplyMarkup)
+		if err != nil {
+			return nil, err
+		}
+		req.ReplyMarkup = string(markup)
+	}
+	return json.Marshal(req)
 }
 
 func (e EditMessageReplyMarkupRequest) doWith(bot Bot) (Response, error) {
