@@ -34,3 +34,17 @@ func (b Bot) GetWebhookInfo() (WebhookInfo, error) {
 	}
 	return info, nil
 }
+
+func (b Bot) GetMyCommands() ([]BotCommand, error) {
+	req := GetMyCommandsRequest{}
+	res, err := b.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	var commands []BotCommand
+	err = json.Unmarshal(res.Result, &commands)
+	if err != nil {
+		return nil, err
+	}
+	return commands, nil
+}

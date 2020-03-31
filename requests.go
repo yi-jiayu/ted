@@ -636,3 +636,27 @@ func (e EditMessageReplyMarkupRequest) MarshalJSON() ([]byte, error) {
 func (e EditMessageReplyMarkupRequest) doWith(bot Bot) (Response, error) {
 	return bot.doJSON("editMessageReplyMarkup", e)
 }
+
+// BotCommand represents a bot command.
+type BotCommand struct {
+	// Command text, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
+	Command string `json:"command"`
+
+	// Description of the command, 3-256 characters.
+	Description string `json:"description"`
+}
+
+type SetMyCommandsRequest struct {
+	// Commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+	Commands []BotCommand `json:"commands"`
+}
+
+func (s SetMyCommandsRequest) doWith(bot Bot) (Response, error) {
+	return bot.doJSON("setMyCommands", s)
+}
+
+type GetMyCommandsRequest struct{}
+
+func (g GetMyCommandsRequest) doWith(bot Bot) (Response, error) {
+	return bot.doQuery("getMyCommands", nil)
+}
