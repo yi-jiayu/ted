@@ -42,3 +42,18 @@ sendMessageRequest := ted.SendMessageRequest{
 // err will be nil if all requests were successful
 responses, err := bot.DoMulti(answerCallbackQueryRequest, sendMessageRequest)
 ```
+
+To use the result, unmarshal it just as you would a HTTP response body:
+
+```go
+getMe := GetMeRequest{}
+res, err := bot.Do(getMe)
+if err != nil {
+    panic(err)
+}
+var me User
+err = json.Unmarshal(res.Result, &me)
+if err != nil {
+    panic(err)
+}
+```

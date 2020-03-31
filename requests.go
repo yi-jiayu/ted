@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 )
 
+type GetMeRequest struct{}
+
+func (g GetMeRequest) doWith(bot Bot) (Response, error) {
+	return bot.doQuery("getMe", nil)
+}
+
 type SendMessageRequest struct {
 	// ChatID is a string when it refers to the username of a channel and an integer otherwise.
 	// Required if InlineMessageID is not specified.
