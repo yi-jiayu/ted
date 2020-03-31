@@ -60,9 +60,21 @@ func (c Bot) DoMulti(requests ...Request) ([]Response, error) {
 }
 
 type Response struct {
-	OK          bool   `json:"ok"`
-	ErrorCode   int    `json:"error_code"`
-	Description string `json:"description"`
+	OK          bool                `json:"ok"`
+	Result      json.RawMessage     `json:"result"`
+	ErrorCode   int                 `json:"error_code"`
+	Description string              `json:"description"`
+	Parameters  *ResponseParameters `json:"parameters"`
+}
+
+// ResponseParameters contains information about why a request was unsuccessful.
+type ResponseParameters struct {
+	// Optional. The group has been migrated to a supergroup with the
+	// specified identifier.
+	MigrateToChatID int64 `json:"migrate_to_chat_id"`
+
+	// Optional. In case of exceeding flood control, the number of seconds left to wait before the request can be repeated
+	RetryAfter int `json:"retry_after"`
 }
 
 func (r Response) Error() string {
