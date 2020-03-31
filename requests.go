@@ -10,6 +10,12 @@ func (g GetMeRequest) doWith(bot Bot) (Response, error) {
 	return bot.doQuery("getMe", nil)
 }
 
+type GetWebhookInfoRequest struct{}
+
+func (g GetWebhookInfoRequest) doWith(bot Bot) (Response, error) {
+	return bot.doQuery("getWebhookInfo", nil)
+}
+
 type SetWebhookRequest struct {
 	// URL is a HTTPS URL to send updates to. Use an empty string to remove
 	// webhook integration
