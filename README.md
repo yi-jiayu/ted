@@ -5,7 +5,7 @@ Go bindings for the Telegram Bot API
 
 ## Usage
 
-Ted's API is inspired by the Go standard library's `net/http` package.
+Ted's API is loosely based on the Go standard library's `net/http` package.
 
 Create a `ted.Bot` with your bot token and HTTP client, then build your request and send it:
 
