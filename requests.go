@@ -19,13 +19,13 @@ func (g GetWebhookInfoRequest) doWith(bot Bot) (Response, error) {
 type SetWebhookRequest struct {
 	// URL is a HTTPS URL to send updates to. Use an empty string to remove
 	// webhook integration
-	URL string `json:"url"`
+	URL string
 
 	// MaxConnections is the maximum allowed number of simultaneous HTTPS
 	// connections to the webhook for update delivery, 1-100. Defaults to
 	// 40. Use lower values to limit the load on your bot‘s server, and
 	// higher values to increase your bot’s throughput.
-	MaxConnections int `json:"max_connections,omitempty"`
+	MaxConnections int
 
 	// AllowedUpdates is a JSON-serialized list of the update types you
 	// want your bot to receive. For example, specify ["message",
@@ -37,11 +37,24 @@ type SetWebhookRequest struct {
 	// Please note that this parameter doesn't affect updates created
 	// before the call to the setWebhook, so unwanted updates may be
 	// received for a short period of time.¬
-	AllowedUpdates []string `json:"allowed_updates,omitempty"`
+	AllowedUpdates []string
 }
 
 func (s SetWebhookRequest) doWith(bot Bot) (Response, error) {
 	return bot.doJSON("setWebhook", s)
+}
+
+func (s SetWebhookRequest) MarshalJSON() ([]byte, error) {
+	data := map[string]interface{}{
+		"url": s.URL,
+	}
+	if s.MaxConnections > 0 {
+		data["max_connections"] = s.MaxConnections
+	}
+	if s.AllowedUpdates != nil {
+		data["allowed_updates"] = s.AllowedUpdates
+	}
+	return json.Marshal(data)
 }
 
 type SendMessageRequest struct {

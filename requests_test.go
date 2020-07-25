@@ -7,6 +7,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSetWebhookRequest_MarshalJSON_WithoutAllowedUpdates(t *testing.T) {
+	var JSON []byte
+	var err error
+	JSON, err = json.Marshal(SetWebhookRequest{
+		URL:            "url",
+		MaxConnections: 40,
+	})
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{"url":"url","max_connections":40}`, string(JSON))
+}
+
+func TestSetWebhookRequest_MarshalJSON_EmptyAllowedUpdates(t *testing.T) {
+	var JSON []byte
+	var err error
+	JSON, err = json.Marshal(SetWebhookRequest{
+		URL:            "url",
+		MaxConnections: 40,
+		AllowedUpdates: []string{},
+	})
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{"url":"url","max_connections":40,"allowed_updates":[]}`, string(JSON))
+}
+
 func TestForceReply_MarshalJSON(t *testing.T) {
 	var JSON []byte
 	var err error
