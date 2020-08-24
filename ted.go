@@ -8,15 +8,20 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Request interface {
 	doWith(bot Bot) (Response, error)
 }
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Bot struct {
 	Token      string
-	HTTPClient *http.Client
+	HTTPClient HTTPClient
 }
 
 func (b Bot) Do(request Request) (Response, error) {
@@ -82,11 +87,27 @@ func (r Response) Error() string {
 	return r.Description
 }
 
+type temporaryError interface {
+	Temporary() bool
+}
+
 // doReq makes the provided http.Request to the Telegram Bot API.
+// Currently hardcoded to retry up to 3 times if the error is retryable (implements Temporary() bool).
 func (b Bot) doReq(req *http.Request) (Response, error) {
-	res, err := b.HTTPClient.Do(req)
-	if err != nil {
-		return Response{}, err
+	retries := 3
+	var res *http.Response
+	var err error
+	for {
+		res, err = b.HTTPClient.Do(req)
+		if err != nil {
+			if terr, ok := err.(temporaryError); ok && terr.Temporary() && retries > 0 {
+				retries--
+				time.Sleep(1 * time.Second)
+				continue
+			}
+			return Response{}, err
+		}
+		break
 	}
 	defer res.Body.Close()
 	var response Response
