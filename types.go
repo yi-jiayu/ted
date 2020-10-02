@@ -30,6 +30,9 @@ type Message struct {
 
 	// For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
 	Entities []MessageEntity `json:"entities"`
+
+	// Optional. Message is a shared location, information about the location
+	Location *Location `json:"location"`
 }
 
 // CommandAndArgs extracts and returns a Telegram bot command and the rest of

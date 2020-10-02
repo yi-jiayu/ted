@@ -673,3 +673,16 @@ type GetMyCommandsRequest struct{}
 func (g GetMyCommandsRequest) doWith(bot Bot) (Response, error) {
 	return bot.doQuery("getMyCommands", nil)
 }
+
+type SendLocationRequest struct {
+	ChatID              interface{} `json:"chat_id"`
+	Latitude            float32     `json:"latitude"`
+	Longitude           float32     `json:"longitude"`
+	DisableNotification bool        `json:"disable_notification,omitempty"`
+	ReplyToMessageID    int         `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup         ReplyMarkup `json:"reply_markup,omitempty"`
+}
+
+func (r SendLocationRequest) doWith(bot Bot) (Response, error) {
+	return bot.doJSON("sendLocation", r)
+}
