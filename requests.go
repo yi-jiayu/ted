@@ -686,3 +686,19 @@ type SendLocationRequest struct {
 func (r SendLocationRequest) doWith(bot Bot) (Response, error) {
 	return bot.doJSON("sendLocation", r)
 }
+
+// SendVenueRequest sends information about a venue. On success, the sent Message is returned.
+type SendVenueRequest struct {
+	ChatID              interface{} `json:"chat_id"`
+	Latitude            float32     `json:"latitude"`
+	Longitude           float32     `json:"longitude"`
+	Title               string      `json:"title"`
+	Address             string      `json:"address"`
+	DisableNotification bool        `json:"disable_notification,omitempty"`
+	ReplyToMessageID    int         `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup         ReplyMarkup `json:"reply_markup,omitempty"`
+}
+
+func (r SendVenueRequest) doWith(bot Bot) (Response, error) {
+	return bot.doJSON("sendVenue", r)
+}
