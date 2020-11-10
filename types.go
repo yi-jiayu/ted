@@ -25,6 +25,9 @@ type Message struct {
 	// For replies, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
 	ReplyToMessage *Message `json:"reply_to_message"`
 
+	// Optional. Bot through which the message was sent
+	ViaBot *User `json:"via_bot"`
+
 	// For text messages, the actual UTF-8 text of the message, 0-4096 characters
 	Text string `json:"text"`
 
