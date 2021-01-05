@@ -19,6 +19,9 @@ type Message struct {
 	// Sender, empty for messages sent to channels
 	From *User `json:"from"`
 
+	// Date the message was sent in Unix time
+	Date int `json:"date"`
+
 	// Conversation the message belongs to
 	Chat Chat `json:"chat"`
 
