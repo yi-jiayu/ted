@@ -25,7 +25,9 @@ type Message struct {
 	// Conversation the message belongs to
 	Chat Chat `json:"chat"`
 
-	// For replies, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
+	// For replies, the original message. Note that the Message object in
+	// this field will not contain further reply_to_message fields even if
+	// it itself is a reply.
 	ReplyToMessage *Message `json:"reply_to_message"`
 
 	// Optional. Bot through which the message was sent
@@ -34,11 +36,71 @@ type Message struct {
 	// For text messages, the actual UTF-8 text of the message, 0-4096 characters
 	Text string `json:"text"`
 
-	// For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
+	// For text messages, special entities like usernames, URLs, bot
+	// commands, etc. that appear in the text
 	Entities []MessageEntity `json:"entities"`
 
 	// Optional. Message is a shared location, information about the location
 	Location *Location `json:"location"`
+
+	// Optional. New members that were added to the group or supergroup and
+	// information about them (the bot itself may be one of these members)
+	NewChatMembers []User `json:"new_chat_members"`
+
+	// Optional. A member was removed from the group, information about
+	// them (this member may be the bot itself)
+	LeftChatMember *User `json:"left_chat_member"`
+
+	// Optional. A chat title was changed to this value
+	NewChatTitle string `json:"new_chat_title"`
+
+	// Optional. A chat photo was change to this value
+	NewChatPhoto []PhotoSize `json:"new_chat_photo"`
+
+	// Optional. Service message: the chat photo was deleted
+	DeleteChatPhoto bool `json:"delete_chat_photo"`
+
+	// Optional. Service message: the group has been created
+	GroupChatCreated bool `json:"group_chat_created"`
+
+	// Optional. Service message: the supergroup has been created. This
+	// field can't be received in a message coming through updates, because
+	// bot can't be a member of a supergroup when it is created. It can
+	// only be found in reply_to_message if someone replies to a very first
+	// message in a directly created supergroup.
+	SupergroupChatCreated bool `json:"supergroup_chat_created"`
+
+	// Optional. Service message: the channel has been created. This field
+	// can't be received in a message coming through updates, because bot
+	// can't be a member of a channel when it is created. It can only be
+	// found in reply_to_message if someone replies to a very first message
+	// in a channel.
+	ChannelChatCreated bool `json:"channel_chat_created"`
+
+	// Optional. The group has been migrated to a supergroup with the
+	// specified identifier. This number may be greater than 32 bits and
+	// some programming languages may have difficulty/silent defects in
+	// interpreting it. But it is smaller than 52 bits, so a signed 64 bit
+	// integer or double-precision float type are safe for storing this
+	// identifier.
+	MigrateToChatID int64 `json:"migrate_to_chat_id"`
+
+	// Optional. The supergroup has been migrated from a group with the
+	// specified identifier. This number may be greater than 32 bits and
+	// some programming languages may have difficulty/silent defects in
+	// interpreting it. But it is smaller than 52 bits, so a signed 64 bit
+	// integer or double-precision float type are safe for storing this
+	// identifier.
+	MigrateFromChatID int64 `json:"migrate_from_chat_id"`
+
+	// Optional. Specified message was pinned. Note that the Message object
+	// in this field will not contain further reply_to_message fields even
+	// if it is itself a reply.
+	PinnedMessage *Message `json:"pinned_message"`
+
+	// Optional. Service message. A user in the chat triggered another
+	// user's proximity alert while sharing Live Location.
+	ProximityAlertTriggered *ProximityAlertTriggered `json:"proximity_alert_triggered"`
 }
 
 // CommandAndArgs extracts and returns a Telegram bot command and the rest of
@@ -59,6 +121,25 @@ func (m Message) CommandAndArgs() (string, string) {
 		}
 	}
 	return "", m.Text
+}
+
+// IsDirectInteraction is true when a message could have resulted from a user
+// directly interacting with the bot, such as when sending a text message, and
+// false when a message represents a generic event like new users joining or
+// leaving a group chat.
+func (m Message) IsDirectInteraction() bool {
+	return m.NewChatMembers == nil && // new members joining the chat
+		m.LeftChatMember == nil && // member leaving the chat
+		m.NewChatTitle == "" && // chat title changing
+		m.NewChatPhoto == nil && // chat photo changing
+		!m.DeleteChatPhoto && // chat photo removed
+		!m.GroupChatCreated && // group chat created
+		!m.SupergroupChatCreated && // supergroup chat created
+		!m.ChannelChatCreated && // channel chat created
+		m.MigrateToChatID == 0 && // group migrated to supergroup
+		m.MigrateFromChatID == 0 && // group migrated from supergroup
+		m.PinnedMessage == nil && // new message pinned
+		m.ProximityAlertTriggered == nil // proximity alert triggered
 }
 
 // User represents a Telegram user or bot.
@@ -165,4 +246,24 @@ type WebhookInfo struct {
 
 	// Optional. A list of update types the bot is subscribed to. Defaults to all update types
 	AllowedUpdates []string `json:"allowed_updates"`
+}
+
+// PhotoSize represents one size of a photo or a file / sticker thumbnail.
+type PhotoSize struct {
+	// Identifier for this file, which can be used to download or reuse the file
+	FileID string `json:"file_id"`
+
+	// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+	FileUniqueID string `json:"file_unique_id"`
+
+	Width    int `json:"width"`     // Photo width
+	Height   int `json:"height"`    // Photo height
+	FileSize int `json:"file_size"` // Optional. File size
+}
+
+// ProximityAlertTriggered represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user.
+type ProximityAlertTriggered struct {
+	Traveler User `json:"traveler"` // User that triggered the alert
+	Watcher  User `json:"watcher"`  // User that set the alert
+	Distance int  `json:"distance"` // The distance between the users
 }
