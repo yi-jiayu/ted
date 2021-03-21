@@ -145,7 +145,7 @@ func (m Message) IsDirectInteraction() bool {
 // User represents a Telegram user or bot.
 type User struct {
 	// Unique identifier for this user or bot
-	ID int `json:"ID"`
+	ID int64 `json:"ID"`
 
 	// True, if this user is a bot
 	IsBot bool `json:"is_bot"`
